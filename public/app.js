@@ -43,10 +43,30 @@ function updateRemainingCoins() {
   document.getElementById('submitBtn').disabled = remaining < 0 || remaining > totalCoins;
 }
 
-function submitInvestment(e) {
+async function getIpAddress() {
+  const res = await fetch('https://api64.ipify.org?format=json');
+  const data = await res.json();
+  return data.ip;
+}
+
+async function hasAlreadyVoted(ip) {
+  const res = await fetch(`https://hrlknumhkoipmhgbhsqv.supabase.co/rest/v1/votes?ip=eq.${ip}`, {
+    headers: {
+      'apikey': 'DEIN_API_KEY',
+      'Authorization': 'Bearer DEIN_API_KEY'
+    }
+  });
+  const data = await res.json();
+  return data.length > 0;
+}
+
+async function submitInvestment(e) {
   e.preventDefault();
 
-  if (localStorage.getItem('hasVoted')) {
+  const ip = await getIpAddress();  // IP-Adresse holen
+  const alreadyVoted = await hasAlreadyVoted(ip);  // Prüfen, ob schon abgestimmt
+
+  if (alreadyVoted || localStorage.getItem('hasVoted')) {
     alert('You have already voted!');
     return;
   }
@@ -64,21 +84,15 @@ function submitInvestment(e) {
           'Content-Type': 'application/json',
           'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhybGtudW1oa29pcG1oZ2Joc3F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4MDA2OTgsImV4cCI6MjA2MTM3NjY5OH0.1XunVpe3GYlHsGUbHQbJTNWxRBj60_W6poOc0ln-tsk',
           'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhybGtudW1oa29pcG1oZ2Joc3F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4MDA2OTgsImV4cCI6MjA2MTM3NjY5OH0.1XunVpe3GYlHsGUbHQbJTNWxRBj60_W6poOc0ln-tsk',
-          'Prefer': 'return=representation'  // wichtig: damit wir Antwort bekommen
+          'Prefer': 'return=representation'
         },
         body: JSON.stringify({
           startup: startup,
           investment: coins,
+          ip: ip,
           timestamp: new Date().toISOString()
         })
-      })
-      .then(res => res.json())
-      .then(data => {
-        console.log('Vote gespeichert:', data);
-      })
-      .catch(error => {
-        console.error('Fehler beim Speichern:', error);
-      });      
+      });
     }
   });
 
@@ -86,4 +100,5 @@ function submitInvestment(e) {
   form.style.display = 'none';
   thankYouDiv.style.display = 'block';
 }
+
 
