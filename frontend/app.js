@@ -51,7 +51,7 @@ function submitInvestment(e) {
     investment[startup.name] = parseInt(document.getElementById(`startup${index}`).value) || 0;
   });
 
-  fetch('/vote', {
+  fetch('/api/vote', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
