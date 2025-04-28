@@ -58,7 +58,7 @@ function submitInvestment(e) {
 
   Object.entries(investment).forEach(([startup, coins]) => {
     if (coins > 0) {
-      fetch('https://hrlknumhkoipmhgbhsqv.supabase.co', {
+      fetch('https://hrlknumhkoipmhgbhsqv.supabase.co/rest/v1/votes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
