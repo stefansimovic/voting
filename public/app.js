@@ -18,6 +18,7 @@ const startupsDiv = document.getElementById('startups');
 const remainingCoinsDiv = document.getElementById('remainingCoins');
 const thankYouDiv = document.getElementById('thankYou');
 
+// Startups in Formular einfügen
 startups.forEach((startup, index) => {
   const div = document.createElement('div');
   div.classList.add('startup');
@@ -39,7 +40,6 @@ function updateRemainingCoins() {
 
   const remaining = totalCoins - used;
   remainingCoinsDiv.innerText = `Remaining Coins: ${remaining}`;
-
   document.getElementById('submitBtn').disabled = remaining < 0 || remaining > totalCoins;
 }
 
@@ -52,19 +52,12 @@ async function getIpAddress() {
 async function hasAlreadyVoted(ip) {
   const res = await fetch(`https://hrlknumhkoipmhgbhsqv.supabase.co/rest/v1/ip_log?ip=eq.${ip}`, {
     headers: {
-      'apikey': 'DEIN_API_KEY',
-      'Authorization': 'Bearer DEIN_API_KEY'
+      'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhybGtudW1oa29pcG1oZ2Joc3F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4MDA2OTgsImV4cCI6MjA2MTM3NjY5OH0.1XunVpe3GYlHsGUbHQbJTNWxRBj60_W6poOc0ln-tsk',
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhybGtudW1oa29pcG1oZ2Joc3F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4MDA2OTgsImV4cCI6MjA2MTM3NjY5OH0.1XunVpe3GYlHsGUbHQbJTNWxRBj60_W6poOc0ln-tsk'
     }
   });
   const data = await res.json();
-
-  if (data.length === 0) {
-    // Wenn die IP NICHT in Supabase existiert => LocalStorage löschen
-    localStorage.removeItem('hasVoted');
-    return false;
-  }
-
-  return true;
+  return data.length > 0;
 }
 
 async function submitInvestment(e) {
@@ -73,7 +66,16 @@ async function submitInvestment(e) {
   const ip = await getIpAddress();
   const alreadyVoted = await hasAlreadyVoted(ip);
 
-  if (alreadyVoted || localStorage.getItem('hasVoted')) {
+  // NEUE REIHENFOLGE!
+  if (alreadyVoted) {
+    alert('You have already voted!');
+    return;
+  }
+
+  // Falls Supabase nichts gefunden hat: sicherheitshalber localStorage löschen
+  localStorage.removeItem('hasVoted');
+
+  if (localStorage.getItem('hasVoted')) {
     alert('You have already voted!');
     return;
   }
@@ -104,15 +106,15 @@ async function submitInvestment(e) {
     }
   });
 
-  await Promise.all(votePromises);  // warten bis alle Investments gespeichert sind
+  await Promise.all(votePromises); // Warten bis alle Votes gespeichert sind
 
-  // IP Log speichern
+  // IP in ip_log Tabelle speichern
   await fetch('https://hrlknumhkoipmhgbhsqv.supabase.co/rest/v1/ip_log', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'apikey': 'DEIN_API_KEY',
-      'Authorization': 'Bearer DEIN_API_KEY',
+      'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhybGtudW1oa29pcG1oZ2Joc3F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4MDA2OTgsImV4cCI6MjA2MTM3NjY5OH0.1XunVpe3GYlHsGUbHQbJTNWxRBj60_W6poOc0ln-tsk',
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhybGtudW1oa29pcG1oZ2Joc3F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4MDA2OTgsImV4cCI6MjA2MTM3NjY5OH0.1XunVpe3GYlHsGUbHQbJTNWxRBj60_W6poOc0ln-tsk',
       'Prefer': 'return=representation'
     },
     body: JSON.stringify({
@@ -121,7 +123,9 @@ async function submitInvestment(e) {
     })
   });
 
+  // Setze LocalStorage für Client
   localStorage.setItem('hasVoted', 'true');
+
   form.style.display = 'none';
   thankYouDiv.style.display = 'block';
 }
