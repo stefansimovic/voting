@@ -64,13 +64,21 @@ function submitInvestment(e) {
           'Content-Type': 'application/json',
           'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhybGtudW1oa29pcG1oZ2Joc3F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4MDA2OTgsImV4cCI6MjA2MTM3NjY5OH0.1XunVpe3GYlHsGUbHQbJTNWxRBj60_W6poOc0ln-tsk',
           'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhybGtudW1oa29pcG1oZ2Joc3F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4MDA2OTgsImV4cCI6MjA2MTM3NjY5OH0.1XunVpe3GYlHsGUbHQbJTNWxRBj60_W6poOc0ln-tsk',
-          'Prefer': 'return=minimal'
+          'Prefer': 'return=representation'  // wichtig: damit wir Antwort bekommen
         },
         body: JSON.stringify({
           startup: startup,
           investment: coins,
+          timestamp: new Date().toISOString()
         })
-      });
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log('Vote gespeichert:', data);
+      })
+      .catch(error => {
+        console.error('Fehler beim Speichern:', error);
+      });      
     }
   });
 
