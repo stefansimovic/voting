@@ -50,21 +50,28 @@ async function getIpAddress() {
 }
 
 async function hasAlreadyVoted(ip) {
-  const res = await fetch(`https://hrlknumhkoipmhgbhsqv.supabase.co/rest/v1/votes?ip=eq.${ip}`, {
+  const res = await fetch(`https://hrlknumhkoipmhgbhsqv.supabase.co/rest/v1/ip_log?ip=eq.${ip}`, {
     headers: {
       'apikey': 'DEIN_API_KEY',
       'Authorization': 'Bearer DEIN_API_KEY'
     }
   });
   const data = await res.json();
-  return data.length > 0;
+
+  if (data.length === 0) {
+    // Wenn die IP NICHT in Supabase existiert => LocalStorage löschen
+    localStorage.removeItem('hasVoted');
+    return false;
+  }
+
+  return true;
 }
 
 async function submitInvestment(e) {
   e.preventDefault();
 
-  const ip = await getIpAddress();  // IP-Adresse holen
-  const alreadyVoted = await hasAlreadyVoted(ip);  // Prüfen, ob schon abgestimmt
+  const ip = await getIpAddress();
+  const alreadyVoted = await hasAlreadyVoted(ip);
 
   if (alreadyVoted || localStorage.getItem('hasVoted')) {
     alert('You have already voted!');
@@ -76,9 +83,10 @@ async function submitInvestment(e) {
     investment[startup.name] = parseInt(document.getElementById(`startup${index}`).value) || 0;
   });
 
-  Object.entries(investment).forEach(([startup, coins]) => {
+  // Votes speichern
+  const votePromises = Object.entries(investment).map(([startup, coins]) => {
     if (coins > 0) {
-      fetch('https://hrlknumhkoipmhgbhsqv.supabase.co/rest/v1/votes', {
+      return fetch('https://hrlknumhkoipmhgbhsqv.supabase.co/rest/v1/votes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -96,9 +104,24 @@ async function submitInvestment(e) {
     }
   });
 
+  await Promise.all(votePromises);  // warten bis alle Investments gespeichert sind
+
+  // IP Log speichern
+  await fetch('https://hrlknumhkoipmhgbhsqv.supabase.co/rest/v1/ip_log', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': 'DEIN_API_KEY',
+      'Authorization': 'Bearer DEIN_API_KEY',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify({
+      ip: ip,
+      timestamp: new Date().toISOString()
+    })
+  });
+
   localStorage.setItem('hasVoted', 'true');
   form.style.display = 'none';
   thankYouDiv.style.display = 'block';
 }
-
-
