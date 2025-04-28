@@ -46,22 +46,36 @@ function updateRemainingCoins() {
 function submitInvestment(e) {
   e.preventDefault();
 
+  if (localStorage.getItem('hasVoted')) {
+    alert('You have already voted!');
+    return;
+  }
+
   let investment = {};
   startups.forEach((startup, index) => {
     investment[startup.name] = parseInt(document.getElementById(`startup${index}`).value) || 0;
   });
 
-  fetch('/api/vote', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(investment)
-  })
-  .then(res => res.json())
-  .then(data => {
-    console.log(data);
-    form.style.display = 'none';
-    thankYouDiv.style.display = 'block';
+  Object.entries(investment).forEach(([startup, coins]) => {
+    if (coins > 0) {
+      fetch('https://hrlknumhkoipmhgbhsqv.supabase.co', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhybGtudW1oa29pcG1oZ2Joc3F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4MDA2OTgsImV4cCI6MjA2MTM3NjY5OH0.1XunVpe3GYlHsGUbHQbJTNWxRBj60_W6poOc0ln-tsk',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhybGtudW1oa29pcG1oZ2Joc3F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4MDA2OTgsImV4cCI6MjA2MTM3NjY5OH0.1XunVpe3GYlHsGUbHQbJTNWxRBj60_W6poOc0ln-tsk',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          startup: startup,
+          investment: coins,
+        })
+      });
+    }
   });
+
+  localStorage.setItem('hasVoted', 'true');
+  form.style.display = 'none';
+  thankYouDiv.style.display = 'block';
 }
+
