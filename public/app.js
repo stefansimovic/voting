@@ -63,6 +63,8 @@ async function hasAlreadyVoted(ip) {
 async function submitInvestment(e) {
   e.preventDefault();
 
+  document.getElementById('submitBtn').disabled = true;
+
   const ip = await getIpAddress();
   const alreadyVoted = await hasAlreadyVoted(ip);
 
