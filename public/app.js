@@ -144,5 +144,8 @@ async function submitInvestment(e) {
   } else {
     form.style.display = 'block';
   }
+
+  // Zeige Seite erst jetzt
+  document.body.style.visibility = 'visible';
 })();
 
