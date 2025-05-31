@@ -133,8 +133,9 @@ async function submitInvestment(e) {
 }
 
 (async () => {
-  const ip = await getIpAddress();
-  const alreadyVoted = await hasAlreadyVoted(ip);
+  const ipPromise = getIpAddress();
+  const alreadyVotedPromise = ipPromise.then(ip => hasAlreadyVoted(ip));
+  const [ip, alreadyVoted] = await Promise.all([ipPromise, alreadyVotedPromise]);
 
   if (alreadyVoted) {
     document.querySelector('.container').innerHTML = `
