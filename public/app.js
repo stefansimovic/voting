@@ -131,3 +131,17 @@ async function submitInvestment(e) {
   form.style.display = 'none';
   thankYouDiv.style.display = 'block';
 }
+
+(async () => {
+  const ip = await getIpAddress();
+  const alreadyVoted = await hasAlreadyVoted(ip);
+
+  if (alreadyVoted || localStorage.getItem('hasVoted')) {
+    document.querySelector('.container').innerHTML = `
+      <h2 style="text-align:center;">You have already voted! 🎉</h2>
+      <p style="text-align:center;">Thank you for participating.</p>
+    `;
+  } else {
+    form.style.display = 'block'; // Nur anzeigen, wenn nicht gevotet
+  }
+})();
