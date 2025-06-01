@@ -146,8 +146,7 @@ async function submitInvestment(e) {
     form.style.display = 'block';
   }
 
-// Verstecke das Loading und zeige die Seite
-document.getElementById('loading').style.display = 'none';
-document.body.style.visibility = 'visible';
+  document.getElementById('loading').style.display = 'none';
+  document.querySelector('.container').style.display = 'block';
 })();
 
