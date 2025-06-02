@@ -6,7 +6,7 @@ const startups = [
   { name: '🧠 Nexo' },
   { name: '🔬 LabOne' },
   { name: '🌸 PCOS Balance' },
-  { name: '📞 Telephoneagent' },
+  { name: '📞 Telefonagent' },
   { name: '🏗️ StrawBrick' },
   { name: '♻️ R3FiL' }
 ];
