@@ -1,14 +1,14 @@
 const startups = [
-  { name: '🔬 LabOne' },
   { name: '🚗 Hitch now' },
-  { name: '🏠 Tokenisation' },
+  { name: '🔐 Tapgo' },
   { name: '🏋️‍♂️ Agility Plus' },
   { name: '🌱 Cairos' },
+  { name: '🧠 Nexo' },
+  { name: '🔬 LabOne' },
+  { name: '🌸 PCOS Balance' },
   { name: '📞 Telephoneagent' },
-  { name: '🔐 Tapgo' },
-  { name: '♻️ R3FiL' },
   { name: '🏗️ StrawBrick' },
-  { name: '🌸 PCOS Balance' }
+  { name: '♻️ R3FiL' }
 ];
 
 let totalCoins = 1000;
